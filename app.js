@@ -35,9 +35,28 @@ render();
 });
 remove.onclick=()=>{version++;onChange('');input.value='';remove.hidden=true;error.textContent='';if(id==='photo'){document.getElementById('photo-quality').hidden=true;document.getElementById('photo-quality').textContent='';}render();};
 }
-bindImageUpload('photo','error',value=>photo=value);
+let originalPhoto='',photoGeneration=0,backgroundBusy=false;
+const cutButton=document.getElementById('cut-background'),restoreButton=document.getElementById('restore-photo'),backgroundStatus=document.getElementById('background-status');
+async function cutBackground(){
+if(!originalPhoto||backgroundBusy)return;
+const generation=++photoGeneration,source=originalPhoto;
+backgroundBusy=true;cutButton.disabled=true;cutButton.textContent='Removendo fundo…';
+document.getElementById('error').textContent='';
+try{
+const result=await window.removeProductBackground(source,message=>{if(generation===photoGeneration)backgroundStatus.textContent=message;});
+if(generation!==photoGeneration)return;
+photo=result;restoreButton.hidden=false;render();backgroundStatus.textContent='Fundo removido! O produto já está no cartaz.';
+}catch(error){if(generation===photoGeneration){backgroundStatus.textContent='A foto original foi mantida.';document.getElementById('error').textContent=/^(Não (foi possível|consegui)|Para recortar)/.test(error.message||'')?error.message:'Não foi possível remover o fundo. Verifique a conexão e tente novamente com uma foto menor.';}}
+finally{if(generation===photoGeneration){backgroundBusy=false;cutButton.disabled=!originalPhoto;cutButton.textContent='Remover fundo novamente';}}
+}
+cutButton.onclick=cutBackground;
+restoreButton.onclick=()=>{photoGeneration++;backgroundBusy=false;photo=originalPhoto;restoreButton.hidden=true;cutButton.disabled=!originalPhoto;cutButton.textContent='Remover fundo';backgroundStatus.textContent='Foto original restaurada.';render();};
+bindImageUpload('photo','error',value=>{
+photoGeneration++;backgroundBusy=false;originalPhoto=value;photo=value;restoreButton.hidden=true;cutButton.disabled=!value;cutButton.textContent='Remover fundo';backgroundStatus.textContent='';
+if(value&&document.getElementById('auto-background').checked)cutBackground();
+});
 bindImageUpload('logo','logo-error',value=>logo=value);
-function validate(){if(!document.getElementById('editor').reportValidity())return false;if(amount(document.getElementById('price').value)===null){document.getElementById('status').textContent='Informe um preço de oferta válido, como 6,99.';return false;}if(document.getElementById('oldPrice').value.trim()&&amount(document.getElementById('oldPrice').value)===null){document.getElementById('status').textContent='Corrija o preço original ou deixe o campo vazio.';return false;}document.getElementById('status').textContent='';return true;}
+function validate(){if(backgroundBusy){document.getElementById('status').textContent='Aguarde a remoção do fundo antes de exportar ou imprimir.';return false;}if(!document.getElementById('editor').reportValidity())return false;if(amount(document.getElementById('price').value)===null){document.getElementById('status').textContent='Informe um preço de oferta válido, como 6,99.';return false;}if(document.getElementById('oldPrice').value.trim()&&amount(document.getElementById('oldPrice').value)===null){document.getElementById('status').textContent='Corrija o preço original ou deixe o campo vazio.';return false;}document.getElementById('status').textContent='';return true;}
 document.getElementById('print').onclick=()=>{if(validate())window.print();};
 document.getElementById('download').onclick=async()=>{if(!validate())return;const btn=document.getElementById('download');btn.disabled=true;const url=URL.createObjectURL(new Blob([render()],{type:'image/svg+xml;charset=utf-8'}));try{const img=new Image();img.src=url;await img.decode();const c=document.createElement('canvas');c.width=2480;c.height=3508;const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,c.width,c.height);const blob=await new Promise(resolve=>c.toBlob(resolve,'image/png'));if(!blob)throw Error();const link=document.createElement('a');const downloadURL=URL.createObjectURL(blob);link.href=downloadURL;link.download='oferta-trilha.png';link.click();setTimeout(()=>URL.revokeObjectURL(downloadURL),1000);document.getElementById('status').textContent='Cartaz exportado em alta resolução: 2480 × 3508 px (A4 a 300 dpi).';}catch{document.getElementById('status').textContent='Não foi possível exportar. Você pode usar a opção Imprimir.';}finally{URL.revokeObjectURL(url);btn.disabled=false;}};
 document.getElementById('reset').onclick=()=>{if(!confirm('Limpar as alterações e começar um novo cartaz?'))return;ids.forEach(id=>document.getElementById(id).value=defaults[id]);color='#07377c';document.getElementById('remove-photo').click();document.getElementById('remove-logo').click();updateSwatches();document.getElementById('status').textContent='';render();};

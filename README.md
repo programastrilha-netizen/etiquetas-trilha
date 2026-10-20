@@ -23,3 +23,9 @@ Abra o servidor no navegador pelo encaminhamento de porta do seu ambiente. Os te
 Esta versão cria um cartaz por vez. Não possui cadastro de produtos, login ou sincronização entre dispositivos.
 
 As imagens são incorporadas ao cartaz sem redução de resolução e sem cortes. O sistema mostra as dimensões e avisa sobre resolução baixa para impressão. A qualidade final depende da foto original; não há reconstrução de detalhes por IA.
+
+## Remover o fundo da foto
+
+Ao enviar uma foto, o recorte automático é ativado por padrão. Aguarde a mensagem de conclusão para exportar ou imprimir. Desmarque a opção antes de enviar para usar a foto inteira, ou clique em “Usar foto original” para desfazer. O botão “Remover fundo” permite tentar manualmente. As margens vazias ao redor do recorte são ajustadas para destacar o produto no cartaz; a foto original permanece disponível para restaurar.
+
+O processamento usa U2NETP/ONNX Runtime no navegador, sem enviar a imagem a servidores. Na primeira utilização, são carregados aproximadamente 18 MB de arquivos do próprio site; a velocidade depende do aparelho. Fotos de até 40 megapixels podem ser recortadas. Os arquivos de modelo e runtime devem ser publicados junto do site. Para executar localmente, use o servidor Python documentado acima; o recorte não funciona abrindo o HTML diretamente por `file://`. Consulte THIRD_PARTY_NOTICES.md para origem e licenças.
