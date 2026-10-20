@@ -1,0 +1,3 @@
+# Preserve model and runtime bytes on every platform.
+*.onnx binary
+*.wasm binary
