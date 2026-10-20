@@ -1,8 +1,8 @@
-/* Local inference using ONNX Runtime (MIT) and U²-Net (Apache-2.0).
+/* Local inference using ONNX Runtime (MIT) and IS-Net (Apache-2.0).
    See THIRD_PARTY_NOTICES.md. No image is sent to a remote service. */
 (() => {
   let sessionPromise, maskCache, maskRequest;
-  const size = 320, pixels = size * size;
+  const size = 1024, pixels = size * size;
   const base = new URL('.', document.currentScript.src);
   function loadRuntime() {
     if (window.ort) return Promise.resolve();
@@ -14,6 +14,29 @@
       document.head.append(script);
     });
   }
+  async function loadModel(progress) {
+    const expectedBytes = 90635832;
+    const response = await fetch(new URL('models/isnet-general-use-fp16.onnx', base));
+    if (!response.ok) throw new Error('Não foi possível carregar o recorte preciso. Verifique a conexão e tente novamente.');
+    if (!response.body) return new Uint8Array(await response.arrayBuffer());
+    const reader = response.body.getReader(), chunks = [];
+    let received = 0, lastPercent = -1;
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      chunks.push(value); received += value.length;
+      const percent = Math.min(100, Math.floor(received / expectedBytes * 100));
+      if (percent !== lastPercent) {
+        lastPercent = percent;
+        progress(`Carregando recorte preciso: ${percent}% (${Math.round(received/1048576)} de 87 MB)…`);
+      }
+    }
+    if (received !== expectedBytes) throw new Error('Não foi possível carregar o recorte completo. Atualize a página e tente novamente.');
+    const model = new Uint8Array(received);
+    let offset = 0;
+    for (const chunk of chunks) {model.set(chunk, offset); offset += chunk.length;}
+    return model;
+  }
   async function getSession(progress) {
     if (!sessionPromise) {
       sessionPromise = (async () => {
@@ -21,7 +44,10 @@
         await loadRuntime();
         ort.env.wasm.wasmPaths = new URL('vendor/onnx/', base).href;
         ort.env.wasm.numThreads = 1;
-        return ort.InferenceSession.create(new URL('models/u2netp.onnx', base).href, {
+        ort.env.wasm.proxy = true;
+        const model = await loadModel(progress);
+        progress('Preparando o recorte preciso neste aparelho…');
+        return ort.InferenceSession.create(model, {
           executionProviders: ['wasm'], graphOptimizationLevel: 'all'
         });
       })().catch(error => { sessionPromise = undefined; throw error; });
@@ -38,7 +64,7 @@
     maskRequest = request;
     request.promise = (async () => {
       const session = await getSession(progress);
-      progress('Identificando o produto e removendo o fundo…');
+      progress('Recortando o produto com mais precisão. Isso pode levar alguns instantes…');
       await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 0)));
       const small = document.createElement('canvas'); small.width = small.height = size;
       const ctx = small.getContext('2d', {willReadFrequently: true});
@@ -46,12 +72,12 @@
       const rgba = ctx.getImageData(0, 0, size, size).data;
       let max = 1;
       for (let i = 0; i < rgba.length; i += 4) max = Math.max(max, rgba[i], rgba[i+1], rgba[i+2]);
-      const data = new Float32Array(3 * pixels), mean = [.485,.456,.406], std = [.229,.224,.225];
+      const data = new Float32Array(3 * pixels), mean = [.5,.5,.5], std = [1,1,1];
       for (let i=0; i<pixels; i++) for (let c=0;c<3;c++) data[c*pixels+i] = (rgba[i*4+c]/max-mean[c])/std[c];
       const input = new ort.Tensor('float32', data, [1,3,size,size]);
       let result;
       try {
-        result = await session.run({[session.inputNames[0]]: input});
+        result = await session.run({[session.inputNames[0]]: input}, [session.outputNames[0]]);
         const raw = result[session.outputNames[0]].data;
         let lo = Infinity, hi = -Infinity;
         for (let i=0;i<pixels;i++) {lo=Math.min(lo,raw[i]);hi=Math.max(hi,raw[i]);}
@@ -91,7 +117,7 @@
       }
       areas.push(tail);largest=Math.max(largest,tail);
     }
-    const minimumArea = Math.max(2,Math.min(24,largest*.0015))*(.4+fraction);
+    const minimumArea = Math.max(2,Math.min(24*(size/320)**2,largest*.0015))*(.4+fraction);
     for (let i=0;i<pixels;i++) if (labels[i] && areas[labels[i]]<minimumArea) alpha[i]=0;
     return alpha;
   }
