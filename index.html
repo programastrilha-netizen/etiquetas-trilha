@@ -1,10 +1,708 @@
 <!doctype html>
 <html lang="pt-BR">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Trilha • Estúdio de ofertas</title><link rel="stylesheet" href="style.css?v=6"></head>
-<body>
-<header><a class="brand" href="."><span class="symbol">T<span>↗</span></span><span>trilha<span class="studio">ESTÚDIO DE OFERTAS</span></span></a><span class="header-note">Da sua ideia para a sua vitrine.</span><span class="local"><i></i> Salvo neste navegador</span></header>
-<main><section class="intro"><div><span class="eyebrow">SUA PRÓXIMA OFERTA COMEÇA AQUI</span><h1>Ofertas que chamam atenção<span>.</span></h1><p>Monte seu cartaz, personalize os detalhes e coloque sua oferta em destaque.</p></div><span class="step">01 <span>/ CRIAR CARTAZ</span></span></section>
-<div class="workspace"><aside><form id="editor"><section class="card"><div class="section-title"><span class="number">01</span><h2>O que está em oferta?</h2></div><label>Nome do produto<input id="product" maxlength="54" value="YOKITOS ASSADO" required></label><div class="row"><label>Descrição / sabor<input id="description" maxlength="55" value="Sabor requeijão"></label><label class="small-field">Peso / volume<input id="weight" maxlength="18" value="135g"></label></div><label class="upload" for="photo"><span id="upload-icon">↑</span><strong>Adicionar foto do produto</strong><small>PNG, JPG ou WebP · até 20 MB · resolução original</small><input id="photo" type="file" accept="image/png,image/jpeg,image/webp"></label><button type="button" id="remove-photo" class="text-button" hidden>Remover foto</button><p class="error" id="error" role="alert"></p><div class="background-options"><label class="check-label"><input type="checkbox" id="auto-background" checked> Remover fundo automaticamente</label><small>Recorte preciso no navegador. O primeiro uso pode demorar para preparar o modelo. Sua foto não é enviada.</small><div class="background-actions"><button type="button" id="cut-background" class="secondary" disabled>Remover fundo</button><button type="button" id="restore-photo" class="text-button" hidden>Usar foto original</button></div><div id="background-refinement" class="background-refinement" hidden><label for="background-strength">Limpeza das bordas <output id="background-strength-value" for="background-strength">Equilibrada</output><input id="background-strength" type="range" min="0" max="100" step="10" value="50"></label><div class="range-labels"><span>Preservar detalhes</span><span>Limpar mais</span></div></div><p id="background-status" role="status" aria-live="polite"></p></div><p id="photo-quality" class="photo-quality" role="status" hidden></p></section>
-<section class="card"><div class="section-title"><span class="number">02</span><h2>Uma oferta irresistível</h2></div><div class="row"><label>Preço original <span class="optional">opcional</span><div class="money"><span>R$</span><input id="oldPrice" inputmode="decimal" value="9,99" aria-label="Preço original"></div></label><label>Preço da oferta<div class="money accent"><span>R$</span><input id="price" inputmode="decimal" value="6,99" required aria-label="Preço da oferta"></div></label></div><div class="row"><label>Unidade<select id="unit"><option>CADA</option><option>KG</option><option>UNIDADE</option><option>PACK</option></select></label><label>Chamada<select id="headline"><option>OFERTA</option><option>SUPER OFERTA</option><option>PROMOÇÃO</option><option>IMPERDÍVEL</option></select></label></div></section>
-<section class="card"><div class="section-title"><span class="number">03</span><h2>Com a cara da sua loja</h2></div><label>Nome da loja<input id="store" maxlength="32" value="TRILHA MULTI COISAS"></label><label class="upload" for="logo"><span>↑</span><strong>Adicionar logotipo da loja</strong><small>PNG, JPG ou WebP · até 5 MB · prefira fundo transparente</small><input id="logo" type="file" accept="image/png,image/jpeg,image/webp"></label><button type="button" id="remove-logo" class="text-button" hidden>Remover logotipo</button><p class="error" id="logo-error" role="alert"></p><div class="row theme-row"><label>Cor do cartaz<div class="swatches"><button type="button" data-color="#07377c" class="swatch selected" style="--color:#07377c" aria-label="Azul" aria-pressed="true"></button><button type="button" data-color="#b91c32" class="swatch" style="--color:#b91c32" aria-label="Vermelho" aria-pressed="false"></button><button type="button" data-color="#12624b" class="swatch" style="--color:#12624b" aria-label="Verde" aria-pressed="false"></button><button type="button" data-color="#49277b" class="swatch" style="--color:#49277b" aria-label="Roxo" aria-pressed="false"></button></div></label><label>Validade <span class="optional">opcional</span><input id="validity" type="date"></label></div><label>Rodapé<input id="footer" maxlength="85" value="Ofertas válidas enquanto durarem os estoques."></label></section></form><button type="button" id="reset" class="reset">↺ &nbsp; Começar de novo</button></aside>
-<section class="preview-area"><div class="preview-toolbar"><div><span class="live-dot"></span><strong>Prévia do cartaz</strong><span class="live-label">AO VIVO</span></div><span>A4 · Vertical</span></div><div class="paper-wrap"><div id="poster" aria-label="Prévia do cartaz"></div></div><div class="export"><div class="export-copy"><span class="paper-icon">▤</span><div><strong>Pronto para ganhar a vitrine</strong><small>PNG em alta resolução · A4 a 300 dpi.</small></div></div><div class="actions"><button id="download" class="secondary">↓ &nbsp; Baixar PNG</button><button id="print" class="primary">Imprimir cartaz ↗</button></div></div><p class="tip">Dica: na impressão, escolha “Salvar como PDF” para guardar seu cartaz.</p><p id="status" role="status"></p></section></div><footer>Feito para destacar o que sua loja tem de melhor.<span>TRILHA / ESTÚDIO DE OFERTAS</span></footer></main><script src="background-removal.js?v=6"></script><script src="app.js?v=7"></script></body></html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#101D40" />
+    <meta
+      name="description"
+      content="Crie cartazes e etiquetas de ofertas com medidas reais, modelos da Trilha e edição visual."
+    />
+    <title>Trilha — Estúdio de Ofertas 2.0</title>
+    <link rel="stylesheet" href="style.css?v=20" />
+  </head>
+  <body>
+    <aside class="sidebar" id="sidebar" aria-label="Ferramentas e modelos">
+      <a class="brand" href="."
+        ><span class="symbol">T<span>↗</span></span
+        ><span>trilha<span class="studio">ESTÚDIO DE OFERTAS</span></span></a
+      >
+      <div class="sidebar-caption">SEU ESTÚDIO, SUA VITRINE</div>
+      <nav class="tool-nav" aria-label="Etapas da edição">
+        <button data-panel="product" class="nav-item active">
+          <span data-icon="box"></span> Produto
+          <span class="nav-index">01</span>
+        </button>
+        <button data-panel="prices" class="nav-item">
+          <span data-icon="tag"></span> Preços <span class="nav-index">02</span>
+        </button>
+        <button data-panel="brand" class="nav-item">
+          <span data-icon="palette"></span> Identidade
+          <span class="nav-index">03</span>
+        </button>
+        <button data-panel="elements" class="nav-item">
+          <span data-icon="layers"></span> Editor visual
+          <span class="nav-index">04</span>
+        </button>
+        <button data-panel="print" class="nav-item">
+          <span data-icon="printer"></span> Impressão
+          <span class="nav-index">05</span>
+        </button>
+      </nav>
+      <div class="sidebar-section-heading">
+        <h2>Modelos da Trilha</h2>
+        <span class="official-tag">OFICIAIS</span>
+      </div>
+      <div id="official-models" class="models-list"></div>
+      <div class="sidebar-section-heading personal-heading">
+        <h2>Meus modelos</h2>
+        <button
+          id="save-model"
+          class="icon-button"
+          aria-label="Salvar personalização como modelo"
+          title="Salvar como modelo"
+        >
+          ＋
+        </button>
+      </div>
+      <div id="custom-models" class="models-list"></div>
+      <div class="sidebar-bottom">
+        <span data-icon="shield"></span>
+        <div>
+          <strong>Seus arquivos ficam aqui</strong
+          ><small>Salvos neste navegador e dispositivo.</small>
+        </div>
+      </div>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="header-left">
+          <button
+            id="menu-toggle"
+            class="icon-button mobile-menu"
+            aria-label="Abrir ferramentas"
+            aria-expanded="false"
+          >
+            <span data-icon="menu"></span>
+          </button>
+          <div class="breadcrumb">
+            Área de trabalho <span>/</span> <strong>Estúdio de ofertas</strong>
+          </div>
+          <span class="version-badge">2.0</span>
+        </div>
+        <div class="header-actions">
+          <span id="save-status" class="save-status" role="status"
+            ><i></i> Carregando rascunho…</span
+          ><button id="new-poster" class="button quiet">
+            <span data-icon="plus"></span><span>Novo cartaz</span>
+          </button>
+        </div>
+      </header>
+      <div class="workbench">
+        <section class="editor-panel" aria-label="Configuração do cartaz">
+          <div class="editor-panel-heading">
+            <div>
+              <span class="eyebrow">EDITE DO SEU JEITO</span>
+              <h1 id="panel-title">Informações do produto</h1>
+            </div>
+            <span class="panel-step" id="panel-step">01 / 05</span>
+          </div>
+          <form id="editor" novalidate>
+            <section class="editor-section" data-section="product">
+              <p class="section-description">
+                Tudo o que seu cliente precisa saber, com o produto no centro da
+                oferta.
+              </p>
+              <label
+                >Nome do produto <span class="required">*</span
+                ><input
+                  id="product"
+                  maxlength="100"
+                  required
+                  placeholder="Ex.: Café especial torrado"
+              /></label>
+              <label
+                >Descrição ou sabor<textarea
+                  id="description"
+                  rows="2"
+                  maxlength="160"
+                  placeholder="Marca, sabor ou detalhes do produto"
+                ></textarea>
+              </label>
+              <label
+                >Peso, volume ou quantidade<input
+                  id="weight"
+                  maxlength="32"
+                  placeholder="Ex.: 500 g · 2 unidades"
+              /></label>
+              <div class="field-heading">
+                <h2>Foto do produto</h2>
+                <span class="subtle">OPCIONAL</span>
+              </div>
+              <label class="upload" for="photo"
+                ><span data-icon="image"></span
+                ><strong>Escolher foto do produto</strong
+                ><small>PNG, JPG ou WebP · até 20 MB</small
+                ><input
+                  id="photo"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+              /></label>
+              <button
+                type="button"
+                id="remove-photo"
+                class="text-button danger"
+                hidden
+              >
+                Remover foto
+              </button>
+              <p class="error" id="error" role="alert"></p>
+              <p id="photo-quality" class="hint" role="status" hidden></p>
+              <div class="subcard background-options">
+                <label class="check-label"
+                  ><input type="checkbox" id="auto-background" checked /><span
+                    >Remover fundo automaticamente</span
+                  ></label
+                >
+                <p class="hint">
+                  Sua foto é processada neste navegador. Na primeira vez,
+                  acompanhe o carregamento do recorte preciso.
+                </p>
+                <div class="inline-actions">
+                  <button
+                    type="button"
+                    id="cut-background"
+                    class="button small"
+                    disabled
+                  >
+                    Remover fundo</button
+                  ><button
+                    type="button"
+                    id="restore-photo"
+                    class="text-button"
+                    hidden
+                  >
+                    Usar original
+                  </button>
+                </div>
+                <div id="background-refinement" hidden>
+                  <label class="range-label" for="background-strength"
+                    >Limpeza das bordas
+                    <output id="background-strength-value"
+                      >Equilibrada</output
+                    ></label
+                  ><input
+                    id="background-strength"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="10"
+                    value="50"
+                  />
+                  <div class="range-captions">
+                    <span>Preservar detalhes</span><span>Limpar mais</span>
+                  </div>
+                </div>
+                <p
+                  id="background-status"
+                  class="hint"
+                  role="status"
+                  aria-live="polite"
+                ></p>
+              </div>
+            </section>
+            <section class="editor-section" data-section="prices" hidden>
+              <p class="section-description">
+                Um preço fácil de ler. Uma oferta difícil de ignorar.
+              </p>
+              <div class="row">
+                <label
+                  >Preço anterior <span class="subtle">OPCIONAL</span>
+                  <div class="money">
+                    <span>R$</span
+                    ><input
+                      id="oldPrice"
+                      inputmode="decimal"
+                      maxlength="15"
+                      aria-label="Preço anterior"
+                      placeholder="0,00"
+                    /></div></label
+                ><label
+                  >Preço da oferta <span class="required">*</span>
+                  <div class="money promotion">
+                    <span>R$</span
+                    ><input
+                      id="price"
+                      inputmode="decimal"
+                      maxlength="15"
+                      aria-label="Preço da oferta"
+                      required
+                      placeholder="0,00"
+                    /></div
+                ></label>
+              </div>
+              <p
+                id="discount-feedback"
+                class="discount-feedback"
+                role="status"
+              ></p>
+              <label
+                >Unidade de venda<select id="unit">
+                  <option>CADA</option>
+                  <option>UNIDADE</option>
+                  <option>KG</option>
+                  <option>PACOTE</option>
+                  <option>LEVE</option>
+                  <option>PACK</option>
+                </select></label
+              >
+              <label
+                >Chamada do cartaz<input
+                  id="headline"
+                  maxlength="30"
+                  placeholder="OFERTA"
+              /></label>
+              <div class="field-heading"><h2>Como exibir o preço</h2></div>
+              <label class="switch-row"
+                ><span>Exibir o símbolo R$</span
+                ><input id="showCurrency" type="checkbox" role="switch"
+              /></label>
+              <label class="switch-row"
+                ><span>Diferenciar reais e centavos</span
+                ><input id="splitCents" type="checkbox" role="switch"
+              /></label>
+              <label class="switch-row"
+                ><span>Exibir “ECONOMIZE R$”</span
+                ><input id="showSavings" type="checkbox" role="switch"
+              /></label>
+              <label class="switch-row"
+                ><span>Exibir desconto em porcentagem</span
+                ><input id="showPercent" type="checkbox" role="switch"
+              /></label>
+              <p class="hint">
+                A economia é calculada a partir dos dois preços. Os valores se
+                ajustam ao espaço disponível.
+              </p>
+            </section>
+            <section class="editor-section" data-section="brand" hidden>
+              <p class="section-description">
+                A identidade da sua loja, presente em cada oferta.
+              </p>
+              <label>Nome da loja<input id="store" maxlength="50" /></label>
+              <label class="upload" for="logo"
+                ><span data-icon="image"></span
+                ><strong>Enviar logotipo original</strong
+                ><small>PNG, JPG ou WebP · até 5 MB · sem distorção</small
+                ><input
+                  id="logo"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp" /></label
+              ><button
+                type="button"
+                id="remove-logo"
+                class="text-button danger"
+                hidden
+              >
+                Remover logotipo
+              </button>
+              <p id="logo-error" class="error" role="alert"></p>
+              <div class="row color-row">
+                <label
+                  >Fundo do cartaz<input
+                    id="background"
+                    type="color"
+                    value="#101d40" /></label
+                ><label
+                  >Cor do preço<input
+                    id="priceColor"
+                    type="color"
+                    value="#cf1826"
+                /></label>
+              </div>
+              <label
+                >Fonte padrão<select id="default-font">
+                  <option value="Arial">Arial</option>
+                  <option value="Arial Black">Arial Black</option>
+                  <option value="Verdana">Verdana</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Trebuchet MS">Trebuchet MS</option>
+                </select></label
+              >
+              <label
+                >Validade da oferta <span class="subtle">OPCIONAL</span
+                ><input id="validity" type="date" /></label
+              ><label>Rodapé<input id="footer" maxlength="160" /></label>
+              <p class="hint">
+                O logotipo enviado mantém suas cores e proporções originais.
+              </p>
+            </section>
+            <section class="editor-section" data-section="elements" hidden>
+              <p class="section-description">
+                Clique em um elemento no cartaz para editar. Arraste para mover
+                ou use a alça para redimensionar.
+              </p>
+              <div
+                id="layers"
+                class="layers-list"
+                aria-label="Elementos do cartaz"
+              ></div>
+              <div id="element-properties" class="subcard" hidden>
+                <div class="field-heading">
+                  <h2 id="selected-name">Elemento selecionado</h2>
+                  <button type="button" id="reset-element" class="text-button">
+                    Restaurar
+                  </button>
+                </div>
+                <label class="switch-row"
+                  ><span>Elemento visível</span
+                  ><input id="element-visible" type="checkbox" role="switch"
+                /></label>
+                <div class="row">
+                  <label
+                    >Posição horizontal<input
+                      id="element-x"
+                      type="number"
+                      step="1" /></label
+                  ><label
+                    >Posição vertical<input
+                      id="element-y"
+                      type="number"
+                      step="1"
+                  /></label>
+                </div>
+                <label class="range-label" for="element-scale"
+                  >Tamanho do elemento
+                  <output id="element-scale-value">100%</output></label
+                ><input
+                  id="element-scale"
+                  type="range"
+                  min="20"
+                  max="400"
+                  step="5"
+                  value="100"
+                />
+                <div id="text-properties">
+                  <label class="range-label" for="element-font-scale"
+                    >Tamanho do texto
+                    <output id="element-font-scale-value">100%</output></label
+                  ><input
+                    id="element-font-scale"
+                    type="range"
+                    min="50"
+                    max="250"
+                    step="5"
+                    value="100"
+                  /><label
+                    >Fonte<select id="element-font">
+                      <option value="">Padrão do modelo</option>
+                      <option>Arial</option>
+                      <option>Arial Black</option>
+                      <option>Verdana</option>
+                      <option>Georgia</option>
+                      <option>Trebuchet MS</option>
+                    </select></label
+                  >
+                  <div class="row">
+                    <label
+                      >Peso<select id="element-weight">
+                        <option value="">Padrão</option>
+                        <option value="400">Regular</option>
+                        <option value="500">Médio</option>
+                        <option value="700">Negrito</option>
+                        <option value="900">Extra negrito</option>
+                      </select></label
+                    ><label
+                      >Alinhamento<select id="element-align">
+                        <option value="">Padrão</option>
+                        <option value="left">Esquerda</option>
+                        <option value="center">Centro</option>
+                        <option value="right">Direita</option>
+                      </select></label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="inline-actions model-actions">
+                <button type="button" id="restore-template" class="button">
+                  Restaurar modelo oficial</button
+                ><button
+                  type="button"
+                  id="save-model-editor"
+                  class="button secondary"
+                >
+                  Salvar como modelo
+                </button>
+              </div>
+              <p class="hint">
+                Os modelos oficiais são preservados. Suas personalizações ficam
+                em “Meus modelos”. Atalhos: setas para mover · Shift para passos
+                maiores · Delete para ocultar.
+              </p>
+            </section>
+            <section class="editor-section" data-section="print" hidden>
+              <p class="section-description">
+                Defina as medidas reais para o balcão, a gôndola ou a vitrine.
+              </p>
+              <div class="segmented" id="format-kind">
+                <button type="button" data-kind="poster" class="active">
+                  Cartaz</button
+                ><button type="button" data-kind="label">Etiqueta</button>
+              </div>
+              <label>Formato<select id="format-preset"></select></label>
+              <div id="orientation-row">
+                <label
+                  >Orientação<select id="orientation">
+                    <option value="portrait">Vertical</option>
+                    <option value="landscape">Horizontal</option>
+                  </select></label
+                >
+              </div>
+              <div class="row" id="custom-dimensions" hidden>
+                <label
+                  >Largura (mm)<input
+                    id="format-width"
+                    type="number"
+                    min="10"
+                    max="600"
+                    step="0.5" /></label
+                ><label
+                  >Altura (mm)<input
+                    id="format-height"
+                    type="number"
+                    min="10"
+                    max="600"
+                    step="0.5"
+                /></label>
+              </div>
+              <div id="label-print-settings" hidden>
+                <div class="field-heading">
+                  <h2>Distribuição na folha A4</h2>
+                </div>
+                <div class="row">
+                  <label
+                    >Margens (mm)<input
+                      id="print-margin"
+                      type="number"
+                      min="0"
+                      max="50"
+                      step="0.5" /></label
+                  ><label
+                    >Espaçamento (mm)<input
+                      id="print-gap"
+                      type="number"
+                      min="0"
+                      max="30"
+                      step="0.5"
+                  /></label>
+                </div>
+                <label
+                  >Orientação da folha A4<select id="paper-orientation">
+                    <option value="portrait">Vertical · 210 × 297 mm</option>
+                    <option value="landscape">Horizontal · 297 × 210 mm</option>
+                  </select></label
+                >
+                <div class="row">
+                  <label
+                    >Etiquetas por folha<input
+                      id="print-per-page"
+                      type="number"
+                      min="0"
+                      max="500"
+                      step="1"
+                    /><small>0 = máximo que couber</small></label
+                  ><label
+                    >Total de etiquetas<input
+                      id="print-copies"
+                      type="number"
+                      min="1"
+                      max="500"
+                      step="1"
+                  /></label>
+                </div>
+                <label class="check-label"
+                  ><input id="print-crop-marks" type="checkbox" /><span
+                    >Mostrar marcas de corte</span
+                  ></label
+                >
+                <div
+                  id="imposition-info"
+                  class="print-summary"
+                  role="status"
+                ></div>
+              </div>
+              <div class="field-heading">
+                <h2>Configurações salvas</h2>
+                <button
+                  type="button"
+                  id="save-print-preset"
+                  class="text-button"
+                >
+                  ＋ Salvar
+                </button>
+              </div>
+              <div class="row">
+                <label class="sr-only" for="print-presets"
+                  >Configuração de impressão salva</label
+                ><select id="print-presets">
+                  <option value="">Escolher configuração…</option></select
+                ><button
+                  type="button"
+                  id="delete-print-preset"
+                  class="icon-button"
+                  aria-label="Excluir configuração selecionada"
+                >
+                  <span data-icon="trash"></span>
+                </button>
+              </div>
+              <div class="print-note">
+                <span data-icon="info"></span>
+                <p>
+                  Na janela de impressão, use
+                  <strong>escala 100% / tamanho real</strong>, margens zero e
+                  desative cabeçalhos e rodapés. A impressão depende das opções
+                  da sua impressora.
+                </p>
+              </div>
+            </section>
+          </form>
+          <div class="editor-panel-footer">
+            <span data-icon="check"></span
+            ><span>Prévia atualizada enquanto você edita</span>
+          </div>
+        </section>
+        <section
+          class="preview-panel"
+          aria-label="Pré-visualização e edição visual"
+        >
+          <div class="preview-heading">
+            <div>
+              <span class="eyebrow">SUA OFERTA EM TEMPO REAL</span>
+              <h2 id="preview-title">Cartaz de oferta</h2>
+            </div>
+            <span id="template-badge" class="model-badge">MODELO OFICIAL</span>
+          </div>
+          <div class="canvas-toolbar">
+            <div class="toolbar-group">
+              <button
+                id="undo"
+                class="icon-button"
+                title="Desfazer (Ctrl+Z)"
+                aria-label="Desfazer"
+                disabled
+              >
+                <span data-icon="undo"></span></button
+              ><button
+                id="redo"
+                class="icon-button"
+                title="Refazer (Ctrl+Shift+Z)"
+                aria-label="Refazer"
+                disabled
+              >
+                <span data-icon="redo"></span></button
+              ><span class="toolbar-divider"></span
+              ><span class="canvas-tip">Selecione para editar</span>
+            </div>
+            <div class="toolbar-group">
+              <button
+                id="zoom-out"
+                class="icon-button"
+                aria-label="Diminuir zoom"
+              >
+                −</button
+              ><select id="zoom" aria-label="Zoom da prévia">
+                <option value="fit">Ajustar à tela</option>
+                <option value="25">25%</option>
+                <option value="50">50%</option>
+                <option value="75">75%</option>
+                <option value="100">100% · tamanho real</option>
+                <option value="125">125%</option>
+                <option value="150">150%</option>
+                <option value="200">200%</option></select
+              ><button
+                id="zoom-in"
+                class="icon-button"
+                aria-label="Aumentar zoom"
+              >
+                ＋
+              </button>
+            </div>
+          </div>
+          <div class="canvas-view-tabs" id="canvas-view-tabs" hidden>
+            <button data-view="design" class="active">Editar etiqueta</button
+            ><button data-view="sheet">Ver folha A4</button>
+          </div>
+          <div id="canvas-viewport" class="canvas-viewport">
+            <div id="canvas-stage" class="canvas-stage">
+              <div
+                id="poster"
+                class="poster"
+                tabindex="0"
+                aria-label="Cartaz editável"
+              ></div>
+            </div>
+          </div>
+          <div class="canvas-status">
+            <span id="format-status">A4 · 210 × 297 mm</span
+            ><span id="zoom-status">Ajustado à tela</span>
+          </div>
+          <div class="export-bar">
+            <div class="export-info">
+              <span class="export-icon" data-icon="file"></span>
+              <div>
+                <strong>Do estúdio direto para a vitrine</strong
+                ><small id="export-dimensions"
+                  >Impressão em tamanho real · PNG a 300 dpi</small
+                >
+              </div>
+            </div>
+            <div class="export-actions">
+              <button id="download" class="button">
+                <span data-icon="download"></span> Baixar PNG</button
+              ><button id="print" class="button primary">
+                <span data-icon="printer"></span> Imprimir / PDF
+              </button>
+            </div>
+          </div>
+          <p
+            id="status"
+            class="operation-status"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </section>
+      </div>
+    </div>
+    <dialog id="name-dialog">
+      <form method="dialog">
+        <div class="dialog-heading">
+          <h2 id="dialog-title">Salvar modelo</h2>
+          <button value="cancel" class="icon-button" aria-label="Fechar">
+            ×
+          </button>
+        </div>
+        <p id="dialog-description"></p>
+        <label
+          >Nome<input
+            id="dialog-name"
+            maxlength="50"
+            required
+            autocomplete="off"
+        /></label>
+        <p id="dialog-error" class="error" role="alert"></p>
+        <div class="dialog-actions">
+          <button value="cancel" class="button" formnovalidate>Cancelar</button
+          ><button id="dialog-save" value="save" class="button primary">
+            Salvar
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="confirm-dialog">
+      <form method="dialog">
+        <h2 id="confirm-title">Novo cartaz?</h2>
+        <p id="confirm-description">
+          O rascunho atual será substituído. Seus modelos e configurações salvas
+          serão mantidos.
+        </p>
+        <div class="dialog-actions">
+          <button value="cancel" class="button">Cancelar</button
+          ><button value="confirm" class="button primary">Confirmar</button>
+        </div>
+      </form>
+    </dialog>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <script src="background-removal.js?v=6"></script>
+    <script type="module" src="app.js?v=20"></script>
+  </body>
+</html>
