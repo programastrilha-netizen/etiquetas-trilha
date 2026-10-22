@@ -117,6 +117,48 @@ a {
   border-radius: 10px;
   background: #fff;
 }
+.official-logo-options {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+.official-logo-option {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.official-logo-option:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: #f8faff;
+}
+.official-logo-option small {
+  color: var(--muted);
+  font-size: 9px;
+}
+.official-logo-thumb {
+  width: 100%;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  padding: 5px;
+  border-radius: 4px;
+  background: #fff;
+}
+.official-logo-thumb.light {
+  background: #101d40;
+}
+.official-logo-thumb img {
+  width: 100%;
+  height: 48px;
+  object-fit: contain;
+}
 .brand-logo-preview {
   min-height: 98px;
   display: grid;

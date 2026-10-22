@@ -20,6 +20,7 @@ import {
   loadBrandLogo,
   saveBrandLogo,
 } from "./persistence.js?v=21";
+import { OFFICIAL_LOGOS, loadOfficialLogo } from "./brand-assets.js?v=22";
 
 const $ = (id) => document.getElementById(id);
 const clone = (value) => structuredClone(value);
@@ -206,6 +207,8 @@ let state = normaliseDraft(await loadDraft());
 let brandLogo = await loadBrandLogo();
 let brandLogoBusy = false,
   brandLogoGeneration = 0;
+let officialLogoBusy = false,
+  officialLogoGeneration = 0;
 let templates = loadCollection("templates").filter(
     (t) =>
       t &&
@@ -310,6 +313,7 @@ function cancelProcessing() {
 }
 function undo() {
   if (!undoStack.length) return;
+  cancelOfficialLogo();
   cancelProcessing();
   redoStack.push(state);
   state = undoStack.pop();
@@ -319,6 +323,7 @@ function undo() {
 }
 function redo() {
   if (!redoStack.length) return;
+  cancelOfficialLogo();
   cancelProcessing();
   undoStack.push(state);
   state = redoStack.pop();
@@ -559,6 +564,7 @@ $("new-poster").onclick = async () => {
     ))
   )
     return;
+  cancelOfficialLogo();
   cancelProcessing();
   visual?.select(null);
   viewMode = "design";
@@ -1158,33 +1164,49 @@ function fileAsDataURL(file) {
   });
 }
 function syncBrandLogo() {
-  for (const id of ["site-logo", "mobile-site-logo", "saved-logo-preview"]) {
+  const siteLogo = brandLogo || OFFICIAL_LOGOS[0].url;
+  for (const id of ["site-logo", "mobile-site-logo"]) {
     const image = $(id);
-    image.hidden = !brandLogo;
-    if (brandLogo && image.getAttribute("src") !== brandLogo)
-      image.src = brandLogo;
-    if (!brandLogo) image.removeAttribute("src");
+    image.onload = image.onerror = syncSiteLogoAvailability;
+    if (image.getAttribute("src") !== siteLogo) image.src = siteLogo;
   }
-  document
-    .querySelector(".app-header")
-    .classList.toggle("has-brand-logo", !!brandLogo);
-  $("brand-fallback").hidden = !!brandLogo;
-  $("saved-logo-empty").hidden = !!brandLogo;
+  const preview = $("saved-logo-preview");
+  preview.hidden = !brandLogo;
+  if (brandLogo && preview.getAttribute("src") !== brandLogo)
+    preview.src = brandLogo;
+  if (!brandLogo) preview.removeAttribute("src");
+  syncSiteLogoAvailability();
+  $("custom-logo-preview").hidden = !brandLogo;
   $("brand-logo-label").textContent = brandLogoBusy
     ? "Carregando logo…"
     : brandLogo
       ? "Trocar logo salvo"
-      : "Carregar logo no site";
+      : "Carregar outro logo para o site";
   $("brand-logo").disabled = brandLogoBusy;
+  $("use-brand-logo").hidden = !brandLogo;
   $("use-brand-logo").disabled = !brandLogo || brandLogoBusy;
   const applied =
     !!brandLogo && state.assets.logo === brandLogo && !elementIsHidden("logo");
   $("use-brand-logo").setAttribute("aria-pressed", String(applied));
   $("use-brand-logo").textContent = applied
     ? "Logo aplicado ao cartaz"
-    : "Usar logo no cartaz";
+    : "Usar meu logo no panfleto";
   $("clear-brand-logo").hidden = !brandLogo;
   $("clear-brand-logo").disabled = brandLogoBusy;
+  for (const logo of OFFICIAL_LOGOS)
+    $("use-trilha-" + logo.id).disabled = officialLogoBusy || brandLogoBusy;
+}
+function syncSiteLogoAvailability() {
+  const site = $("site-logo");
+  const mobile = $("mobile-site-logo");
+  const siteFailed = site.complete && !site.naturalWidth;
+  const mobileFailed = mobile.complete && !mobile.naturalWidth;
+  site.hidden = siteFailed;
+  mobile.hidden = mobileFailed;
+  $("brand-fallback").hidden = !siteFailed;
+  document
+    .querySelector(".app-header")
+    .classList.toggle("has-brand-logo", !mobileFailed);
 }
 $("brand-logo").onchange = async () => {
   const file = $("brand-logo").files[0];
@@ -1217,7 +1239,7 @@ $("brand-logo").onchange = async () => {
       await saveBrandLogo(original);
       if (generation === brandLogoGeneration)
         $("brand-logo-status").textContent =
-          "Logo salvo no site, neste navegador. Clique em “Usar logo no cartaz” para incluí-lo na oferta.";
+          "Logo salvo no site, neste navegador. Clique em “Usar meu logo no panfleto” para incluí-lo na oferta.";
     } catch {
       if (generation === brandLogoGeneration)
         $("brand-logo-error").textContent =
@@ -1235,10 +1257,9 @@ $("brand-logo").onchange = async () => {
     }
   }
 };
-$("use-brand-logo").onclick = () => {
-  if (!brandLogo || brandLogoBusy) return;
+function applyPosterLogo(source) {
   update({
-    assets: { ...state.assets, logo: brandLogo },
+    assets: { ...state.assets, logo: source },
     design: {
       ...state.design,
       elements: {
@@ -1250,7 +1271,49 @@ $("use-brand-logo").onclick = () => {
   toast(
     "Logo incluído no cartaz. Ajuste a posição e o tamanho no editor visual.",
   );
+}
+function cancelOfficialLogo() {
+  if (officialLogoBusy) $("brand-logo-status").textContent = "";
+  officialLogoGeneration++;
+  officialLogoBusy = false;
+}
+$("use-brand-logo").onclick = () => {
+  if (!brandLogo || brandLogoBusy) return;
+  cancelOfficialLogo();
+  applyPosterLogo(brandLogo);
 };
+for (const logo of OFFICIAL_LOGOS)
+  $("use-trilha-" + logo.id).onclick = async () => {
+    if (officialLogoBusy || brandLogoBusy) return;
+    const generation = ++officialLogoGeneration;
+    const previousLogo = state.assets.logo;
+    officialLogoBusy = true;
+    $("brand-logo-error").textContent = "";
+    $("brand-logo-status").textContent =
+      `Carregando ${logo.name.toLowerCase()}…`;
+    syncBrandLogo();
+    try {
+      const original = await loadOfficialLogo(logo.id);
+      if (generation !== officialLogoGeneration) return;
+      if (state.assets.logo !== previousLogo) {
+        $("brand-logo-status").textContent = "";
+        return;
+      }
+      applyPosterLogo(original);
+      $("brand-logo-status").textContent =
+        `${logo.name} aplicado. A imagem original acompanha o PNG e a impressão.`;
+    } catch (error) {
+      if (generation === officialLogoGeneration) {
+        $("brand-logo-status").textContent = "";
+        $("brand-logo-error").textContent = error.message;
+      }
+    } finally {
+      if (generation === officialLogoGeneration) {
+        officialLogoBusy = false;
+        syncBrandLogo();
+      }
+    }
+  };
 $("clear-brand-logo").onclick = async () => {
   if (brandLogoBusy) return;
   brandLogoBusy = true;
@@ -1260,7 +1323,7 @@ $("clear-brand-logo").onclick = async () => {
     await saveBrandLogo("");
     brandLogo = "";
     $("brand-logo-status").textContent =
-      "Logo removido do site e da biblioteca. O cartaz atual mantém suas imagens.";
+      "Logo da Trilha restaurado no site. O cartaz atual mantém suas imagens.";
   } catch {
     $("brand-logo-error").textContent =
       "Não foi possível remover o logo salvo. Tente novamente.";
@@ -1275,6 +1338,10 @@ function bindImage(id, errorId, maxMB) {
     const generation = ++version,
       file = $(id).files[0];
     if (!file) return;
+    if (id === "logo") {
+      cancelOfficialLogo();
+      syncBrandLogo();
+    }
     $(errorId).textContent = "";
     if (
       !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
@@ -1311,6 +1378,10 @@ function bindImage(id, errorId, maxMB) {
     }
   };
   $("remove-" + id).onclick = () => {
+    if (id === "logo") {
+      cancelOfficialLogo();
+      syncBrandLogo();
+    }
     version++;
     $(id).value = "";
     $(errorId).textContent = "";

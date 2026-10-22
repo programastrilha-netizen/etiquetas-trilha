@@ -9,13 +9,17 @@
       content="Crie cartazes e etiquetas de ofertas com medidas reais, modelos da Trilha e edição visual."
     />
     <title>Trilha — Estúdio de Ofertas 2.0</title>
-    <link rel="stylesheet" href="style.css?v=21" />
+    <link rel="stylesheet" href="style.css?v=22" />
   </head>
   <body>
     <aside class="sidebar" id="sidebar" aria-label="Ferramentas e modelos">
       <a class="brand" href="." aria-label="Trilha — Estúdio de Ofertas">
-        <img id="site-logo" alt="Logotipo da loja" hidden />
-        <span id="brand-fallback"
+        <img
+          id="site-logo"
+          src="https://dcdn-us.mitiendanube.com/stores/006/752/693/themes/common/logo-938984077-1762189512-00fafd9e99e4002c1781379251ca21e91762189512-480-0.webp"
+          alt="Trilha Multicoisas"
+        />
+        <span id="brand-fallback" hidden
           >TRILHA<span class="studio">MULTICOISAS</span></span
         >
         <span class="brand-studio">ESTÚDIO DE OFERTAS</span>
@@ -69,7 +73,7 @@
     </aside>
     <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
     <div class="app-shell">
-      <header class="app-header">
+      <header class="app-header has-brand-logo">
         <div class="header-left">
           <button
             id="menu-toggle"
@@ -79,7 +83,11 @@
           >
             <span data-icon="menu"></span>
           </button>
-          <img id="mobile-site-logo" alt="Logotipo da loja" hidden />
+          <img
+            id="mobile-site-logo"
+            src="https://dcdn-us.mitiendanube.com/stores/006/752/693/themes/common/logo-938984077-1762189512-00fafd9e99e4002c1781379251ca21e91762189512-480-0.webp"
+            alt="Trilha Multicoisas"
+          />
           <div class="breadcrumb">
             Área de trabalho <span>/</span> <strong>Estúdio de ofertas</strong>
           </div>
@@ -285,20 +293,51 @@
               </p>
               <label>Nome da loja<input id="store" maxlength="50" /></label>
               <div class="brand-logo-card">
-                <strong>Logo da loja</strong>
-                <div class="brand-logo-preview">
+                <strong>Logos da Trilha</strong>
+                <p class="hint">
+                  Escolha a versão para aplicar no cartaz ou panfleto.
+                </p>
+                <div class="official-logo-options">
+                  <button
+                    id="use-trilha-dark"
+                    type="button"
+                    class="official-logo-option"
+                    data-logo="dark"
+                  >
+                    <span class="official-logo-thumb"
+                      ><img
+                        src="https://dcdn-us.mitiendanube.com/stores/006/752/693/themes/common/logo-938984077-1762189512-00fafd9e99e4002c1781379251ca21e91762189512-480-0.webp"
+                        alt="Logo escuro da Trilha"
+                    /></span>
+                    <strong>Usar logo escuro</strong
+                    ><small>Para fundos claros</small>
+                  </button>
+                  <button
+                    id="use-trilha-light"
+                    type="button"
+                    class="official-logo-option"
+                    data-logo="light"
+                  >
+                    <span class="official-logo-thumb light"
+                      ><img
+                        src="https://i.imgur.com/CpZs2GK.png"
+                        alt="Logo claro da Trilha"
+                    /></span>
+                    <strong>Usar logo claro</strong
+                    ><small>Para fundos escuros</small>
+                  </button>
+                </div>
+                <div id="custom-logo-preview" class="brand-logo-preview" hidden>
                   <img
                     id="saved-logo-preview"
                     alt="Logotipo salvo da loja"
                     hidden
                   />
-                  <p id="saved-logo-empty">
-                    Carregue o logo original da Trilha para exibi-lo no site e
-                    reutilizá-lo nas ofertas.
-                  </p>
                 </div>
                 <label class="brand-logo-upload" for="brand-logo">
-                  <span id="brand-logo-label">Carregar logo no site</span>
+                  <span id="brand-logo-label"
+                    >Carregar outro logo para o site</span
+                  >
                   <input
                     id="brand-logo"
                     type="file"
@@ -310,8 +349,9 @@
                   type="button"
                   class="button primary"
                   disabled
+                  hidden
                 >
-                  Usar logo no cartaz
+                  Usar meu logo no panfleto
                 </button>
                 <button
                   id="clear-brand-logo"
@@ -319,7 +359,7 @@
                   class="text-button"
                   hidden
                 >
-                  Remover logo salvo
+                  Restaurar logo da Trilha no site
                 </button>
                 <small
                   >PNG, JPG ou WebP · até 5 MB. Salvo neste navegador, sem
@@ -751,6 +791,6 @@
     </dialog>
     <div id="toast" class="toast" role="status" hidden></div>
     <script src="background-removal.js?v=6"></script>
-    <script type="module" src="app.js?v=21"></script>
+    <script type="module" src="app.js?v=22"></script>
   </body>
 </html>

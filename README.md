@@ -41,7 +41,9 @@ Na janela de impressão, selecione o papel correto, **escala 100% / tamanho real
 
 Fotos: PNG, JPG ou WebP de até 20 MB. Logotipo: mesmos formatos, até 5 MB. As imagens mantêm sua resolução original; a nitidez final depende da foto enviada e do tamanho utilizado no cartaz. O painel informa o DPI aproximado da foto no tamanho atual. Nenhum detalhe desfocado é reconstruído por IA.
 
-Em **Identidade → Logo da loja**, **Carregar logo no site** guarda o arquivo original e o exibe na barra lateral. **Usar logo no cartaz** inclui uma cópia na oferta atual; posição e tamanho continuam editáveis. O logo salvo fica disponível para outras ofertas, mesmo após removê-lo de um cartaz. O envio de outro logo apenas para o cartaz continua disponível. **Remover logo salvo** limpa a identidade do site e a biblioteca, preservando as imagens do cartaz atual. O arquivo do logo precisa ser carregado nesse navegador: anexos de conversas não são importados automaticamente para o site.
+O logo escuro original da Trilha aparece no site por padrão. Em **Identidade → Logos da Trilha**, **Usar logo escuro** ou **Usar logo claro** inclui a versão escolhida no cartaz ou panfleto, sem alterar cores ou proporções. A versão clara é indicada para fundos escuros. As imagens são carregadas dos links fornecidos pelo proprietário; para exportar, o navegador precisa conseguir ler a imagem com CORS. O original é incorporado no cartaz como data URL e acompanha o PNG, a impressão e o rascunho salvo. Uma falha de conexão informa o erro e permite tentar novamente ou enviar o arquivo.
+
+**Carregar outro logo para o site** guarda um arquivo personalizado e o exibe na barra lateral e no cabeçalho do celular. **Usar meu logo no panfleto** inclui uma cópia na oferta atual; posição e tamanho continuam editáveis. O envio de outro logo apenas para o cartaz continua disponível. **Restaurar logo da Trilha no site** remove a personalização do site, preservando as imagens do cartaz atual. Os arquivos personalizados ficam neste navegador.
 
 O recorte usa ISNet/ONNX Runtime no próprio navegador, sem enviar fotos a um serviço externo. O primeiro uso carrega aproximadamente 91 MB do modelo e 13 MB do runtime, com indicação de progresso. Um worker mantém a interface utilizável durante o processamento. No host de teste, o recorte levou cerca de 11 segundos; o tempo depende do aparelho. Depois, a sessão é reutilizada e o modelo pode ser reaproveitado pelo cache do navegador.
 
@@ -56,6 +58,7 @@ Os dados ficam neste navegador e dispositivo, sem sincronização em nuvem. Se o
 ## Arquitetura e verificação
 
 - `app.js`: estado, histórico, formulários e integração.
+- `brand-assets.js`: fontes dos logos oficiais e incorporação dos originais para exportação.
 - `poster-renderer.js`: modelos oficiais, formatação monetária e SVG com elementos editáveis.
 - `visual-editor.js`: seleção, arrasto, redimensionamento e atalhos.
 - `print-engine.js`: medidas, imposição, impressão e PNG com metadado de DPI.
