@@ -9,14 +9,17 @@
       content="Crie cartazes e etiquetas de ofertas com medidas reais, modelos da Trilha e edição visual."
     />
     <title>Trilha — Estúdio de Ofertas 2.0</title>
-    <link rel="stylesheet" href="style.css?v=20" />
+    <link rel="stylesheet" href="style.css?v=21" />
   </head>
   <body>
     <aside class="sidebar" id="sidebar" aria-label="Ferramentas e modelos">
-      <a class="brand" href="."
-        ><span class="symbol">T<span>↗</span></span
-        ><span>trilha<span class="studio">ESTÚDIO DE OFERTAS</span></span></a
-      >
+      <a class="brand" href="." aria-label="Trilha — Estúdio de Ofertas">
+        <img id="site-logo" alt="Logotipo da loja" hidden />
+        <span id="brand-fallback"
+          >TRILHA<span class="studio">MULTICOISAS</span></span
+        >
+        <span class="brand-studio">ESTÚDIO DE OFERTAS</span>
+      </a>
       <div class="sidebar-caption">SEU ESTÚDIO, SUA VITRINE</div>
       <nav class="tool-nav" aria-label="Etapas da edição">
         <button data-panel="product" class="nav-item active">
@@ -76,6 +79,7 @@
           >
             <span data-icon="menu"></span>
           </button>
+          <img id="mobile-site-logo" alt="Logotipo da loja" hidden />
           <div class="breadcrumb">
             Área de trabalho <span>/</span> <strong>Estúdio de ofertas</strong>
           </div>
@@ -280,9 +284,53 @@
                 A identidade da sua loja, presente em cada oferta.
               </p>
               <label>Nome da loja<input id="store" maxlength="50" /></label>
+              <div class="brand-logo-card">
+                <strong>Logo da loja</strong>
+                <div class="brand-logo-preview">
+                  <img
+                    id="saved-logo-preview"
+                    alt="Logotipo salvo da loja"
+                    hidden
+                  />
+                  <p id="saved-logo-empty">
+                    Carregue o logo original da Trilha para exibi-lo no site e
+                    reutilizá-lo nas ofertas.
+                  </p>
+                </div>
+                <label class="brand-logo-upload" for="brand-logo">
+                  <span id="brand-logo-label">Carregar logo no site</span>
+                  <input
+                    id="brand-logo"
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                  />
+                </label>
+                <button
+                  id="use-brand-logo"
+                  type="button"
+                  class="button primary"
+                  disabled
+                >
+                  Usar logo no cartaz
+                </button>
+                <button
+                  id="clear-brand-logo"
+                  type="button"
+                  class="text-button"
+                  hidden
+                >
+                  Remover logo salvo
+                </button>
+                <small
+                  >PNG, JPG ou WebP · até 5 MB. Salvo neste navegador, sem
+                  alterar a imagem original.</small
+                >
+                <p id="brand-logo-status" class="hint" role="status"></p>
+                <p id="brand-logo-error" class="error" role="alert"></p>
+              </div>
               <label class="upload" for="logo"
                 ><span data-icon="image"></span
-                ><strong>Enviar logotipo original</strong
+                ><strong>Enviar outro logo para este cartaz</strong
                 ><small>PNG, JPG ou WebP · até 5 MB · sem distorção</small
                 ><input
                   id="logo"
@@ -703,6 +751,6 @@
     </dialog>
     <div id="toast" class="toast" role="status" hidden></div>
     <script src="background-removal.js?v=6"></script>
-    <script type="module" src="app.js?v=20"></script>
+    <script type="module" src="app.js?v=21"></script>
   </body>
 </html>

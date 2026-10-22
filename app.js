@@ -4,7 +4,7 @@ import {
   getCanvasSize,
   parseMoney,
   calculateDiscount,
-} from "./poster-renderer.js?v=20";
+} from "./poster-renderer.js?v=21";
 import {
   computeImposition,
   getPNGDimensions,
@@ -17,7 +17,9 @@ import {
   saveDraft,
   loadCollection,
   saveCollection,
-} from "./persistence.js?v=20";
+  loadBrandLogo,
+  saveBrandLogo,
+} from "./persistence.js?v=21";
 
 const $ = (id) => document.getElementById(id);
 const clone = (value) => structuredClone(value);
@@ -201,6 +203,9 @@ function normaliseDraft(saved) {
   return base;
 }
 let state = normaliseDraft(await loadDraft());
+let brandLogo = await loadBrandLogo();
+let brandLogoBusy = false,
+  brandLogoGeneration = 0;
 let templates = loadCollection("templates").filter(
     (t) =>
       t &&
@@ -1123,6 +1128,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") closeSidebar();
 });
 function syncPhotoControls() {
+  syncBrandLogo();
   $("remove-photo").hidden = !state.assets.photo;
   $("remove-logo").hidden = !state.assets.logo;
   document.querySelector("label[for=photo] strong").textContent = state.assets
@@ -1131,8 +1137,8 @@ function syncPhotoControls() {
     : "Escolher foto do produto";
   document.querySelector("label[for=logo] strong").textContent = state.assets
     .logo
-    ? "Trocar logotipo original"
-    : "Enviar logotipo original";
+    ? "Trocar logo deste cartaz"
+    : "Enviar outro logo para este cartaz";
   $("cut-background").disabled = !state.assets.originalPhoto || backgroundBusy;
   $("cut-background").textContent = backgroundBusy
     ? "Removendo fundo…"
@@ -1151,6 +1157,118 @@ function fileAsDataURL(file) {
     reader.readAsDataURL(file);
   });
 }
+function syncBrandLogo() {
+  for (const id of ["site-logo", "mobile-site-logo", "saved-logo-preview"]) {
+    const image = $(id);
+    image.hidden = !brandLogo;
+    if (brandLogo && image.getAttribute("src") !== brandLogo)
+      image.src = brandLogo;
+    if (!brandLogo) image.removeAttribute("src");
+  }
+  document
+    .querySelector(".app-header")
+    .classList.toggle("has-brand-logo", !!brandLogo);
+  $("brand-fallback").hidden = !!brandLogo;
+  $("saved-logo-empty").hidden = !!brandLogo;
+  $("brand-logo-label").textContent = brandLogoBusy
+    ? "Carregando logo…"
+    : brandLogo
+      ? "Trocar logo salvo"
+      : "Carregar logo no site";
+  $("brand-logo").disabled = brandLogoBusy;
+  $("use-brand-logo").disabled = !brandLogo || brandLogoBusy;
+  const applied =
+    !!brandLogo && state.assets.logo === brandLogo && !elementIsHidden("logo");
+  $("use-brand-logo").setAttribute("aria-pressed", String(applied));
+  $("use-brand-logo").textContent = applied
+    ? "Logo aplicado ao cartaz"
+    : "Usar logo no cartaz";
+  $("clear-brand-logo").hidden = !brandLogo;
+  $("clear-brand-logo").disabled = brandLogoBusy;
+}
+$("brand-logo").onchange = async () => {
+  const file = $("brand-logo").files[0];
+  if (!file) return;
+  const generation = ++brandLogoGeneration;
+  brandLogoBusy = true;
+  $("brand-logo-error").textContent = "";
+  $("brand-logo-status").textContent = "";
+  syncBrandLogo();
+  try {
+    if (
+      !["image/png", "image/jpeg", "image/webp"].includes(file.type) ||
+      file.size > 5 * 1024 * 1024
+    )
+      throw new Error("Escolha uma imagem PNG, JPG ou WebP de até 5 MB.");
+    let bitmap;
+    try {
+      bitmap = await createImageBitmap(file);
+    } catch {
+      throw new Error(
+        "Não foi possível abrir este logo. Escolha outro arquivo.",
+      );
+    }
+    bitmap.close();
+    const original = await fileAsDataURL(file);
+    if (generation !== brandLogoGeneration) return;
+    brandLogo = original;
+    syncBrandLogo();
+    try {
+      await saveBrandLogo(original);
+      if (generation === brandLogoGeneration)
+        $("brand-logo-status").textContent =
+          "Logo salvo no site, neste navegador. Clique em “Usar logo no cartaz” para incluí-lo na oferta.";
+    } catch {
+      if (generation === brandLogoGeneration)
+        $("brand-logo-error").textContent =
+          "O logo está disponível nesta sessão, mas o navegador não permitiu salvá-lo. Será necessário carregá-lo novamente ao reabrir.";
+    }
+  } catch (error) {
+    if (generation === brandLogoGeneration)
+      $("brand-logo-error").textContent =
+        error.message || "Não foi possível carregar o logo.";
+  } finally {
+    if (generation === brandLogoGeneration) {
+      brandLogoBusy = false;
+      $("brand-logo").value = "";
+      syncBrandLogo();
+    }
+  }
+};
+$("use-brand-logo").onclick = () => {
+  if (!brandLogo || brandLogoBusy) return;
+  update({
+    assets: { ...state.assets, logo: brandLogo },
+    design: {
+      ...state.design,
+      elements: {
+        ...state.design.elements,
+        logo: { ...state.design.elements.logo, hidden: false },
+      },
+    },
+  });
+  toast(
+    "Logo incluído no cartaz. Ajuste a posição e o tamanho no editor visual.",
+  );
+};
+$("clear-brand-logo").onclick = async () => {
+  if (brandLogoBusy) return;
+  brandLogoBusy = true;
+  $("brand-logo-error").textContent = "";
+  syncBrandLogo();
+  try {
+    await saveBrandLogo("");
+    brandLogo = "";
+    $("brand-logo-status").textContent =
+      "Logo removido do site e da biblioteca. O cartaz atual mantém suas imagens.";
+  } catch {
+    $("brand-logo-error").textContent =
+      "Não foi possível remover o logo salvo. Tente novamente.";
+  } finally {
+    brandLogoBusy = false;
+    syncBrandLogo();
+  }
+};
 function bindImage(id, errorId, maxMB) {
   let version = 0;
   $(id).onchange = async () => {

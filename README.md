@@ -41,13 +41,15 @@ Na janela de impressão, selecione o papel correto, **escala 100% / tamanho real
 
 Fotos: PNG, JPG ou WebP de até 20 MB. Logotipo: mesmos formatos, até 5 MB. As imagens mantêm sua resolução original; a nitidez final depende da foto enviada e do tamanho utilizado no cartaz. O painel informa o DPI aproximado da foto no tamanho atual. Nenhum detalhe desfocado é reconstruído por IA.
 
+Em **Identidade → Logo da loja**, **Carregar logo no site** guarda o arquivo original e o exibe na barra lateral. **Usar logo no cartaz** inclui uma cópia na oferta atual; posição e tamanho continuam editáveis. O logo salvo fica disponível para outras ofertas, mesmo após removê-lo de um cartaz. O envio de outro logo apenas para o cartaz continua disponível. **Remover logo salvo** limpa a identidade do site e a biblioteca, preservando as imagens do cartaz atual. O arquivo do logo precisa ser carregado nesse navegador: anexos de conversas não são importados automaticamente para o site.
+
 O recorte usa ISNet/ONNX Runtime no próprio navegador, sem enviar fotos a um serviço externo. O primeiro uso carrega aproximadamente 91 MB do modelo e 13 MB do runtime, com indicação de progresso. Um worker mantém a interface utilizável durante o processamento. No host de teste, o recorte levou cerca de 11 segundos; o tempo depende do aparelho. Depois, a sessão é reutilizada e o modelo pode ser reaproveitado pelo cache do navegador.
 
 A opção **Limpeza das bordas** ajusta a máscara sem executar novamente a identificação do produto. **Usar original** restaura a foto enviada. Sombras, reflexos, transparências ou fundos complexos ainda podem produzir sobras. O recorte aceita fotos de até 40 megapixels. Origem, integridade e licenças estão em [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) e [models/README.md](models/README.md).
 
 ## Dados salvos
 
-O rascunho, incluindo foto e logotipo, é salvo em IndexedDB. Os modelos personalizados e configurações de impressão ficam em localStorage. O rascunho de texto da versão anterior é migrado automaticamente.
+O rascunho, incluindo foto e logotipo, e o logo reutilizável da loja são salvos em IndexedDB, em registros separados. Os modelos personalizados e configurações de impressão ficam em localStorage. O rascunho de texto da versão anterior é migrado automaticamente.
 
 Os dados ficam neste navegador e dispositivo, sem sincronização em nuvem. Se o armazenamento de imagens não estiver disponível, o sistema salva os textos quando possível e informa a limitação. Limpar os dados do navegador também remove os rascunhos, modelos e configurações. O histórico de desfazer/refazer vale para a sessão atual.
 

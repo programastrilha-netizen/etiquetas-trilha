@@ -6,6 +6,7 @@
 const DATABASE = "trilha-studio";
 const STORE = "drafts";
 const CURRENT = "current";
+const BRAND_LOGO = "brand-logo";
 const DRAFT_KEY = "trilha-v2-draft";
 const LEGACY_KEY = "trilha-offer";
 const PREFIX = "trilha-v2-";
@@ -161,7 +162,7 @@ function openDatabase() {
   return databasePromise;
 }
 
-async function transact(mode, envelope) {
+async function transact(mode, envelope, key = CURRENT) {
   const db = await openDatabase();
   return new Promise((resolve, reject) => {
     let tx,
@@ -185,8 +186,8 @@ async function transact(mode, envelope) {
       tx = db.transaction(STORE, mode);
       const request =
         mode === "readonly"
-          ? tx.objectStore(STORE).get(CURRENT)
-          : tx.objectStore(STORE).put(envelope, CURRENT);
+          ? tx.objectStore(STORE).get(key)
+          : tx.objectStore(STORE).put(envelope, key);
       request.onsuccess = () => {
         result = request.result;
       };
@@ -352,4 +353,40 @@ export function saveCollection(key, items) {
       "Não foi possível salvar a configuração neste navegador. Verifique o espaço e as permissões de armazenamento.",
     );
   }
+}
+
+/** Read the store identity independently of the active poster draft. */
+export async function loadBrandLogo() {
+  return enqueue(async () => {
+    try {
+      const value = await transact("readonly", undefined, BRAND_LOGO);
+      return typeof value === "string" &&
+        /^data:image\/(png|jpe?g|webp);base64,/i.test(value)
+        ? value
+        : "";
+    } catch {
+      return "";
+    }
+  });
+}
+
+/** Persist the original logo only in IndexedDB; an empty string removes it.
+ * There is no image-bearing localStorage fallback and no change to the draft.
+ */
+export async function saveBrandLogo(dataurl) {
+  if (
+    typeof dataurl !== "string" ||
+    (dataurl !== "" && !/^data:image\/(png|jpe?g|webp);base64,/i.test(dataurl))
+  ) {
+    throw new Error("Escolha um logotipo PNG, JPEG ou WebP válido.");
+  }
+  return enqueue(async () => {
+    try {
+      await transact("readwrite", dataurl, BRAND_LOGO);
+    } catch {
+      throw new Error(
+        "Não foi possível salvar o logotipo neste navegador. Libere espaço ou permita o armazenamento do site.",
+      );
+    }
+  });
 }

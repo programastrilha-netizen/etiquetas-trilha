@@ -31,6 +31,33 @@ const base = () => ({
   assets: {},
 });
 
+test("the original logo remains embedded with its aspect ratio in every template and physical format", () => {
+  const logo =
+    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aQfoAAAAASUVORK5CYII=";
+  for (const template of TEMPLATE_DEFINITIONS) {
+    for (const [widthMm, heightMm] of [
+      [210, 297],
+      [297, 210],
+      [60, 30],
+      [40, 65],
+      [40, 40],
+      [100, 150],
+      [90, 30],
+      [210, 10],
+    ]) {
+      const state = base();
+      state.design.template = template.id;
+      state.format = { kind: "label", widthMm, heightMm };
+      state.assets.logo = logo;
+      const svg = renderPosterSVG(state);
+      const image = svg.match(/<image[^>]*data-store-logo="true"[^>]*>/)?.[0];
+      assert.ok(image, `${template.id}, ${widthMm} × ${heightMm}`);
+      assert.ok(image.includes(`href="${logo}"`));
+      assert.ok(image.includes('preserveAspectRatio="xMidYMid meet"'));
+    }
+  }
+});
+
 test("accepts Brazilian currency, grouping and supported decimal entry", () => {
   for (const [value, expected] of [
     ["R$ 1.234,56", 1234.56],

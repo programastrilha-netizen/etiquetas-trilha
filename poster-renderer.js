@@ -956,13 +956,22 @@ function shelfStrip(state, template, builder, h, background, priceColour) {
   const data = state.data || {},
     pad = Math.max(3, h * 0.06),
     headerH = h * 0.18;
+  const logo = imageSource(state.assets?.logo),
+    logoWidth = logo ? headerH * 2.8 : 0,
+    storeX = pad + (logo ? logoWidth + pad : 0);
   const photo = imageSource(state.assets?.photo),
     hasPhoto = !!photo && template.id !== "text-only";
   let result = `<rect width="600" height="${h}" fill="${WHITE}"/><rect width="600" height="${headerH}" fill="${background}"/><rect x="1" y="1" width="598" height="${h - 2}" fill="none" stroke="${background}" stroke-width="2"/>`;
+  result += builder.image("logo", logo, {
+    x: pad,
+    y: 1,
+    w: logoWidth,
+    h: Math.max(1, headerH - 2),
+  });
   result += builder.text(
     "store",
     data.store,
-    { x: pad, y: 1, w: 365 - pad, h: Math.max(1, headerH - 2) },
+    { x: storeX, y: 1, w: 365 - storeX, h: Math.max(1, headerH - 2) },
     {
       fill: ink,
       size: headerH * 0.75,
@@ -1026,7 +1035,7 @@ function shelfStrip(state, template, builder, h, background, priceColour) {
     priceColour,
     true,
   );
-  for (const id of ["logo", "headline", "weight", "savings", "footer"])
+  for (const id of ["headline", "weight", "savings", "footer"])
     result += builder.element(
       id,
       { x: pad, y: contentY, w: 100, h: Math.max(1, contentH * 0.2) },
